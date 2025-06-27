@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的工具箱 - 常用工具集合</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <h1><i class="fas fa-toolbox"></i> 我的工具箱</h1>
+            <p>集成常用工具，提升工作效率</p>
+        </div>
+    </header>
+
+    <nav class="nav">
+        <div class="container">
+            <ul class="nav-list">
+                <li><a href="#calculator" class="nav-link active"><i class="fas fa-calculator"></i> 计算工具</a></li>
+                <li><a href="#text-tools" class="nav-link"><i class="fas fa-font"></i> 文本工具</a></li>
+                <li><a href="#converter" class="nav-link"><i class="fas fa-exchange-alt"></i> 转换工具</a></li>
+                <li><a href="#generator" class="nav-link"><i class="fas fa-magic"></i> 生成工具</a></li>
+                <li><a href="#utility" class="nav-link"><i class="fas fa-cogs"></i> 实用工具</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="main">
+        <div class="container">
+            <!-- 计算工具 -->
+            <section id="calculator" class="tool-section active">
+                <h2>计算工具</h2>
+                <div class="tool-grid">
+                    <div class="tool-card calculator-card">
+                        <h3><i class="fas fa-calculator"></i> 计算器</h3>
+                        <div class="calculator">
+                            <input type="text" id="calcDisplay" readonly>
+                            <div class="calc-buttons">
+                                <button onclick="clearCalc()" class="operator">C</button>
+                                <button onclick="deleteLast()" class="operator">←</button>
+                                <button onclick="appendToCalc('/')" class="operator">÷</button>
+                                <button onclick="appendToCalc('*')" class="operator">×</button>
+                                <button onclick="appendToCalc('7')" class="number">7</button>
+                                <button onclick="appendToCalc('8')" class="number">8</button>
+                                <button onclick="appendToCalc('9')" class="number">9</button>
+                                <button onclick="appendToCalc('-')" class="operator">-</button>
+                                <button onclick="appendToCalc('4')" class="number">4</button>
+                                <button onclick="appendToCalc('5')" class="number">5</button>
+                                <button onclick="appendToCalc('6')" class="number">6</button>
+                                <button onclick="appendToCalc('+')" class="operator">+</button>
+                                <button onclick="appendToCalc('1')" class="number">1</button>
+                                <button onclick="appendToCalc('2')" class="number">2</button>
+                                <button onclick="appendToCalc('3')" class="number">3</button>
+                                <button onclick="calculate()" class="equals" rowspan="2">=</button>
+                                <button onclick="appendToCalc('0')" class="zero number">0</button>
+                                <button onclick="appendToCalc('.')" class="number">.</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tool-card">
+                        <h3><i class="fas fa-history"></i> 计算历史</h3>
+                        <div id="calcHistory" class="calc-history-display">
+                            <div class="history-placeholder">暂无计算历史</div>
+                        </div>
+                        <button onclick="clearHistory()" class="clear-history-btn">清空历史</button>
+                    </div>
+                </div>
+                <div class="tool-grid">
+                    <div class="tool-card">
+                        <h3><i class="fas fa-yen-sign"></i> 税率计算</h3>
+                        <div class="input-group">
+                            <label>金额:</label>
+                            <input type="number" id="taxAmount" placeholder="请输入金额">
+                        </div>
+                        <div class="input-group">
+                            <label>税率(%):</label>
+                            <input type="number" id="taxRate" placeholder="请输入税率">
+                        </div>
+                        <button onclick="calculateTax()">计算</button>
+                        <div id="taxResult" class="result"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 文本工具 -->
+            <section id="text-tools" class="tool-section">
+                <h2>文本工具</h2>
+                <div class="tool-grid">
+                    <div class="tool-card">
+                        <h3><i class="fas fa-sort-alpha-down"></i> 文本处理</h3>
+                        <textarea id="textInput" placeholder="请输入要处理的文本..."></textarea>
+                        <div class="button-group">
+                            <button onclick="textToUpper()">转大写</button>
+                            <button onclick="textToLower()">转小写</button>
+                            <button onclick="removeSpaces()">去空格</button>
+                            <button onclick="countWords()">字数统计</button>
+                        </div>
+                        <div id="textResult" class="result"></div>
+                    </div>
+                    <div class="tool-card">
+                        <h3><i class="fas fa-code"></i> JSON格式化</h3>
+                        <textarea id="jsonInput" placeholder="请输入JSON字符串..."></textarea>
+                        <div class="button-group">
+                            <button onclick="formatJson()">格式化</button>
+                            <button onclick="minifyJson()">压缩</button>
+                            <button onclick="validateJson()">验证</button>
+                        </div>
+                        <pre id="jsonResult" class="result"></pre>
+                    </div>
+                    <div class="tool-card">
+                        <h3><i class="fas fa-rmb"></i> 金额小写转大写</h3>
+                        <textarea id="amountInput" placeholder="请输入金额，如1023456.789"></textarea>
+                        <div class="button-group">
+                            <button onclick="convertAmountToChinese()">转大写</button>
+                        </div>
+                        <div id="amountResult" class="result"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 转换工具 -->
+            <section id="converter" class="tool-section">
+                <h2>转换工具</h2>
+                <div class="tool-grid">
+                    <div class="tool-card">
+                        <h3><i class="fas fa-palette"></i> 颜色转换</h3>
+                        <div class="input-group">
+                            <label>HEX颜色:</label>
+                            <input type="text" id="hexInput" placeholder="#FF0000" oninput="convertColor()">
+                        </div>
+                        <div class="input-group">
+                            <label>RGB颜色:</label>
+                            <input type="text" id="rgbInput" placeholder="rgb(255, 0, 0)" readonly>
+                        </div>
+                        <div class="input-group">
+                            <label>HSL颜色:</label>
+                            <input type="text" id="hslInput" placeholder="hsl(0, 100%, 50%)" readonly>
+                        </div>
+                        <div id="colorPreview" class="color-preview"></div>
+                    </div>
+
+                    <div class="tool-card">
+                        <h3><i class="fas fa-clock"></i> 时间戳转换</h3>
+                        <div class="input-group">
+                            <label>时间戳 (秒):</label>
+                            <input type="number" id="timestampInput" oninput="convertTimestamp()">
+                        </div>
+                        <div class="input-group">
+                            <label>日期时间:</label>
+                            <input type="datetime-local" id="datetimeInput" onchange="convertDatetime()">
+                        </div>
+                        <button onclick="getCurrentTimestamp()">获取当前时间戳</button>
+                        <div id="timestampResult" class="result"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 生成工具 -->
+            <section id="generator" class="tool-section">
+                <h2>生成工具</h2>
+                <div class="tool-grid">
+                    <div class="tool-card">
+                        <h3><i class="fas fa-key"></i> 密码生成器</h3>
+                        <div class="input-group">
+                            <label>密码长度:</label>
+                            <input type="range" id="passwordLength" min="4" max="50" value="12" oninput="updateLengthDisplay()">
+                            <span id="lengthDisplay">12</span>
+                        </div>
+                        <div class="checkbox-group">
+                            <label><input type="checkbox" id="includeUppercase" checked> 大写字母</label>
+                            <label><input type="checkbox" id="includeLowercase" checked> 小写字母</label>
+                            <label><input type="checkbox" id="includeNumbers" checked> 数字</label>
+                            <label><input type="checkbox" id="includeSymbols"> 特殊字符</label>
+                        </div>
+                        <button onclick="generatePassword()">生成密码</button>
+                        <div class="input-group">
+                            <input type="text" id="generatedPassword" readonly>
+                            <button onclick="copyPassword()">复制</button>
+                        </div>
+                    </div>
+
+                    <div class="tool-card">
+                        <h3><i class="fas fa-qrcode"></i> 二维码生成</h3>
+                        <div class="input-group">
+                            <label>输入内容:</label>
+                            <textarea id="qrInput" placeholder="请输入要生成二维码的内容..."></textarea>
+                        </div>
+                        <button onclick="generateQR()">生成二维码</button>
+                        <div id="qrResult" class="qr-container"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 实用工具 -->
+            <section id="utility" class="tool-section">
+                <h2>实用工具</h2>
+                <div class="tool-grid">
+                    <div class="tool-card">
+                        <h3><i class="fas fa-link"></i> URL编码/解码</h3>
+                        <textarea id="urlInput" placeholder="请输入URL..."></textarea>
+                        <div class="button-group">
+                            <button onclick="encodeURL()">编码</button>
+                            <button onclick="decodeURL()">解码</button>
+                        </div>
+                        <textarea id="urlResult" readonly></textarea>
+                    </div>
+
+                    <div class="tool-card">
+                        <h3><i class="fas fa-shield-alt"></i> Base64编码/解码</h3>
+                        <textarea id="base64Input" placeholder="请输入文本..."></textarea>
+                        <div class="button-group">
+                            <button onclick="encodeBase64()">编码</button>
+                            <button onclick="decodeBase64()">解码</button>
+                        </div>
+                        <textarea id="base64Result" readonly></textarea>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 我的工具箱. 让工作更高效!</p>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.3/qrcode.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
