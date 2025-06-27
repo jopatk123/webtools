@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>模块测试</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .log { background: #f8f9fa; padding: 10px; margin: 10px 0; border-left: 3px solid #007bff; }
+        .error { border-left-color: #dc3545; background: #f8d7da; }
+        .success { border-left-color: #28a745; background: #d4edda; }
+    </style>
+</head>
+<body>
+    <h1>模块导入测试</h1>
+    <div id="logs"></div>
+    
+    <script type="module">
+        const logs = document.getElementById('logs');
+        
+        function log(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `log ${type}`;
+            div.textContent = new Date().toLocaleTimeString() + ': ' + message;
+            logs.appendChild(div);
+            console.log(message);
+        }
+        
+        async function testModules() {
+            log('开始测试模块导入...');
+            
+            try {
+                log('测试 Calculator 模块导入...');
+                const { Calculator } = await import('./js/modules/calculator.js');
+                log('Calculator 模块导入成功', 'success');
+                
+                log('测试 ImageTools 模块导入...');
+                const { ImageTools } = await import('./js/modules/imageTools.js');
+                log('ImageTools 模块导入成功', 'success');
+                
+                log('测试 Converters 模块导入...');
+                const { Converters } = await import('./js/modules/converters.js');
+                log('Converters 模块导入成功', 'success');
+                
+                log('测试 Generators 模块导入...');
+                const { Generators } = await import('./js/modules/generators.js');
+                log('Generators 模块导入成功', 'success');
+                
+                log('测试 Navigation 模块导入...');
+                const { Navigation } = await import('./js/modules/navigation.js');
+                log('Navigation 模块导入成功', 'success');
+                
+                log('所有模块导入测试完成！', 'success');
+                
+                // 测试模块实例化
+                log('开始测试模块实例化...');
+                
+                try {
+                    const nav = new Navigation();
+                    log('Navigation 实例化成功', 'success');
+                } catch (error) {
+                    log('Navigation 实例化失败: ' + error.message, 'error');
+                }
+                
+                try {
+                    const calc = new Calculator();
+                    log('Calculator 实例化成功', 'success');
+                } catch (error) {
+                    log('Calculator 实例化失败: ' + error.message, 'error');
+                }
+                
+                try {
+                    const conv = new Converters();
+                    log('Converters 实例化成功', 'success');
+                } catch (error) {
+                    log('Converters 实例化失败: ' + error.message, 'error');
+                }
+                
+                try {
+                    const gen = new Generators();
+                    log('Generators 实例化成功', 'success');
+                } catch (error) {
+                    log('Generators 实例化失败: ' + error.message, 'error');
+                }
+                
+                try {
+                    const img = new ImageTools();
+                    log('ImageTools 实例化成功', 'success');
+                } catch (error) {
+                    log('ImageTools 实例化失败: ' + error.message, 'error');
+                }
+                
+            } catch (error) {
+                log('模块导入失败: ' + error.message, 'error');
+                console.error('详细错误信息:', error);
+            }
+        }
+        
+        // 全局错误处理
+        window.addEventListener('error', (event) => {
+            log('全局错误: ' + event.error.message, 'error');
+            console.error('全局错误详情:', event.error);
+        });
+        
+        window.addEventListener('unhandledrejection', (event) => {
+            log('未处理的Promise错误: ' + event.reason, 'error');
+            console.error('Promise错误详情:', event.reason);
+        });
+        
+        // 开始测试
+        testModules();
+    </script>
+</body>
+</html>

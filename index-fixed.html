@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的工具箱 - 常用工具集合</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .debug-panel {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            width: 300px;
+            max-height: 200px;
+            overflow-y: auto;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 10px;
+            font-size: 12px;
+            z-index: 9999;
+            border-radius: 5px;
+        }
+        .debug-panel.hidden {
+            display: none;
+        }
+        .debug-toggle {
+            position: fixed;
+            top: 10px;
+            right: 320px;
+            z-index: 10000;
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <button class="debug-toggle" onclick="toggleDebug()">调试</button>
+    <div id="debugPanel" class="debug-panel hidden">
+        <div id="debugLogs">正在加载...</div>
+    </div>
+
+    <nav class="nav">
+        <div class="container">
+            <ul class="nav-list">
+                <li><a href="#calculator" class="nav-link active"><i class="fas fa-calculator"></i> 计算工具</a></li>
+                <li><a href="#image-tools" class="nav-link"><i class="fas fa-image"></i> 图片工具</a></li>
+                <li><a href="#converter" class="nav-link"><i class="fas fa-exchange-alt"></i> 转换工具</a></li>
+                <li><a href="#generator" class="nav-link"><i class="fas fa-magic"></i> 生成工具</a></li>
+                <li><a href="#utility" class="nav-link"><i class="fas fa-cogs"></i> 实用工具</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="main">
+        <div class="container">
+            <!-- 计算工具 -->
+            <section id="calculator" class="tool-section active">
+                <h2>计算工具</h2>
+                <div class="tool-grid">
+                    <div class="tool-card calculator-card">
+                        <h3><i class="fas fa-calculator"></i> 计算器</h3>
+                        <div class="calculator">
+                            <input type="text" id="calcDisplay" readonly>
+                            <div class="calc-buttons">
+                                <button id="calcClear" class="clear">C</button>
+                                <button id="calcDelete" class="delete">←</button>
+                                <button data-value="×" class="operator">×</button>
+                                <button data-value="÷" class="operator">÷</button>
+                                <button data-value="7" class="number">7</button>
+                                <button data-value="8" class="number">8</button>
+                                <button data-value="9" class="number">9</button>
+                                <button data-value="-" class="operator">-</button>
+                                <button data-value="4" class="number">4</button>
+                                <button data-value="5" class="number">5</button>
+                                <button data-value="6" class="number">6</button>
+                                <button data-value="+" class="operator">+</button>
+                                <button data-value="1" class="number">1</button>
+                                <button data-value="2" class="number">2</button>
+                                <button data-value="3" class="number">3</button>
+                                <button id="calcEquals" class="equals" rowspan="2">=</button>
+                                <button data-value="0" class="number zero">0</button>
+                                <button data-value="." class="number">.</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 图片工具 -->
+            <section id="image-tools" class="tool-section">
+                <h2>图片工具</h2>
+                <div class="tool-grid">
+                    <div class="tool-card">
+                        <h3><i class="fas fa-folder-open"></i> 选择文件夹</h3>
+                        <input type="file" id="imageFileInput" webkitdirectory multiple accept="image/*" style="display: none;">
+                        <button id="selectFolderBtn" class="btn btn-primary">选择图片文件夹</button>
+                        <div id="imageList" class="image-list"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 转换工具 -->
+            <section id="converter" class="tool-section">
+                <h2>转换工具</h2>
+                <div class="tool-grid">
+                    <div class="tool-card">
+                        <h3><i class="fas fa-palette"></i> 颜色转换</h3>
+                        <div class="converter-group">
+                            <label>HEX颜色:</label>
+                            <input type="text" id="hexInput" placeholder="#FF0000">
+                            <div id="colorPreview" class="color-preview"></div>
+                            <div id="colorResult" class="result"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 生成工具 -->
+            <section id="generator" class="tool-section">
+                <h2>生成工具</h2>
+                <div class="tool-grid">
+                    <div class="tool-card">
+                        <h3><i class="fas fa-key"></i> 密码生成器</h3>
+                        <div class="generator-group">
+                            <label>密码长度: <span id="lengthDisplay">8</span></label>
+                            <input type="range" id="passwordLength" min="4" max="20" value="8">
+                            <button id="generatePassword" class="btn btn-primary">生成密码</button>
+                            <input type="text" id="generatedPassword" readonly>
+                            <button id="copyPassword" class="btn btn-secondary">复制</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 实用工具 -->
+            <section id="utility" class="tool-section">
+                <h2>实用工具</h2>
+                <div class="tool-grid">
+                    <div class="tool-card">
+                        <h3><i class="fas fa-calculator"></i> 税务计算</h3>
+                        <div class="utility-group">
+                            <label>税前金额:</label>
+                            <input type="number" id="preTaxAmount" placeholder="输入税前金额">
+                            <label>税率(%):</label>
+                            <input type="number" id="taxRate" placeholder="输入税率" value="13">
+                            <button id="calculateTax" class="btn btn-primary">计算</button>
+                            <div id="taxResult" class="result"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 我的工具箱. 让工作更高效!</p>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.3/qrcode.min.js"></script>
+    
+    <script>
+        // 调试面板功能
+        let debugLogs = [];
+        
+        function toggleDebug() {
+            const panel = document.getElementById('debugPanel');
+            panel.classList.toggle('hidden');
+        }
+        
+        function debugLog(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = `[${timestamp}] ${type.toUpperCase()}: ${message}`;
+            debugLogs.push(logEntry);
+            
+            const logsDiv = document.getElementById('debugLogs');
+            if (logsDiv) {
+                logsDiv.innerHTML = debugLogs.slice(-10).join('<br>');
+            }
+            
+            console.log(logEntry);
+        }
+        
+        // 全局错误处理
+        window.addEventListener('error', (event) => {
+            debugLog('全局错误: ' + event.error.message, 'error');
+            console.error('全局错误详情:', event.error);
+        });
+        
+        window.addEventListener('unhandledrejection', (event) => {
+            debugLog('Promise错误: ' + event.reason, 'error');
+            console.error('Promise错误详情:', event.reason);
+        });
+        
+        debugLog('页面开始加载');
+        
+        // DOM加载完成后的处理
+        document.addEventListener('DOMContentLoaded', () => {
+            debugLog('DOM加载完成');
+        });
+    </script>
+    
+    <!-- 模块化脚本 -->
+    <script type="module">
+        debugLog('开始加载模块脚本');
+        
+        try {
+            // 动态导入app.js
+            import('./js/app.js')
+                .then(() => {
+                    debugLog('app.js 模块加载成功', 'success');
+                })
+                .catch(error => {
+                    debugLog('app.js 模块加载失败: ' + error.message, 'error');
+                    console.error('模块加载错误:', error);
+                });
+        } catch (error) {
+            debugLog('模块导入异常: ' + error.message, 'error');
+            console.error('模块导入异常:', error);
+        }
+    </script>
+</body>
+</html>
