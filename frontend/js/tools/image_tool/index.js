@@ -7,6 +7,7 @@ import { FormatFilter } from './modules/format-filter.js';
 import { FileScanner } from './modules/file-scanner.js';
 import { ImageDisplay } from './modules/image-display.js';
 import { ModalManager } from './modules/modal-manager.js';
+import { PreviewManager } from './modules/preview-manager.js';
 import { EventHandler } from './modules/event-handler.js';
 import { showNotification, showStatus } from './modules/utils.js';
 import { NOTIFICATION_TYPES, STATUS_TYPES } from './constants.js';
@@ -25,15 +26,20 @@ class ImageToolApp {
      */
     async init() {
         try {
-            showStatus('正在初始化图片工具...', STATUS_TYPES.LOADING);
+            console.log('开始初始化图片工具...');
+            const statusElement = document.getElementById('status');
+            showStatus(statusElement, '正在初始化图片工具...', STATUS_TYPES.LOADING);
             
             // 初始化DOM管理器
+            console.log('初始化DOM管理器...');
             this.modules.domManager = new DomManager();
             
             // 检查必需的DOM元素
+            console.log('验证DOM元素...');
             if (!this.modules.domManager.validateElements()) {
                 throw new Error('缺少必需的DOM元素');
             }
+            console.log('DOM元素验证通过');
             
             // 初始化格式过滤器
             this.modules.formatFilter = new FormatFilter(this.modules.domManager);
@@ -53,32 +59,41 @@ class ImageToolApp {
             // 初始化模态框管理器
             this.modules.modalManager = new ModalManager(this.modules.domManager);
             
+            // 初始化预览管理器
+            this.modules.previewManager = new PreviewManager();
+            
             // 初始化事件处理器
+            console.log('初始化事件处理器...');
             this.modules.eventHandler = new EventHandler(
                 this.modules.domManager,
                 this.modules.fileScanner,
                 this.modules.formatFilter,
                 this.modules.imageDisplay,
-                this.modules.modalManager
+                this.modules.modalManager,
+                this.modules.previewManager
             );
+            console.log('事件处理器初始化完成');
             
             // 设置模块间的引用关系
             this.setupModuleReferences();
             
             // 初始化完成
             this.isInitialized = true;
-            showStatus('图片工具初始化完成', STATUS_TYPES.SUCCESS);
+            showStatus(statusElement, '图片工具初始化完成', STATUS_TYPES.SUCCESS);
             
             // 自动隐藏成功状态
             setTimeout(() => {
-                showStatus('', STATUS_TYPES.IDLE);
+                showStatus(statusElement, '', STATUS_TYPES.IDLE);
             }, 2000);
             
             console.log('图片工具初始化完成');
             
         } catch (error) {
             console.error('图片工具初始化失败:', error);
-            showStatus('初始化失败: ' + error.message, STATUS_TYPES.ERROR);
+            const statusElement = document.getElementById('status');
+            if (statusElement) {
+                showStatus(statusElement, '初始化失败: ' + error.message, STATUS_TYPES.ERROR);
+            }
             showNotification('图片工具初始化失败', NOTIFICATION_TYPES.ERROR);
         }
     }
@@ -87,12 +102,16 @@ class ImageToolApp {
      * 设置模块间的引用关系
      */
     setupModuleReferences() {
-        // 文件扫描器需要访问图片显示器
-        this.modules.fileScanner.setImageDisplay(this.modules.imageDisplay);
-        
-        // 图片显示器需要访问模态框管理器
-        this.modules.imageDisplay.setModalManager(this.modules.modalManager);
-        
+        // EventHandler 需要所有模块，已经在构造函数中注入
+
+        // ImageDisplay 需要 ModalManager 来处理预览
+        if (this.modules.imageDisplay && this.modules.modalManager) {
+            this.modules.imageDisplay.setModalManager(this.modules.modalManager);
+        }
+
+        // FileScanner 完成扫描后，结果由 EventHandler 传递给 ImageDisplay
+        // 因此 FileScanner 不需要直接引用 ImageDisplay
+
         // 将主应用实例暴露给全局，供调试使用
         window.imageToolApp = this;
     }

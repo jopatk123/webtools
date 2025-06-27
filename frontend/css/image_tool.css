@@ -309,6 +309,32 @@
   font-weight: 500;
 }
 
+.results-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.remove-selected-btn {
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.remove-selected-btn:hover:not(:disabled) {
+  background: #c82333;
+}
+
+.remove-selected-btn:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
 .table-container {
   max-height: 60vh;
   overflow: auto;
@@ -330,6 +356,89 @@
   position: sticky;
   top: 0;
   z-index: 10;
+}
+
+#image-table th.sortable {
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+}
+
+#image-table th.sortable:hover {
+  background: var(--bg-tertiary);
+}
+
+#image-table th.sortable::after {
+  content: '';
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-bottom: 4px solid var(--text-tertiary);
+  opacity: 0.3;
+}
+
+#image-table th.sortable.sort-asc::after {
+  border-bottom: 4px solid var(--primary-color);
+  border-top: none;
+  opacity: 1;
+}
+
+#image-table th.sortable.sort-desc::after {
+  border-top: 4px solid var(--primary-color);
+  border-bottom: none;
+  opacity: 1;
+}
+
+.checkbox-cell {
+  width: 40px;
+  text-align: center;
+}
+
+.row-checkbox {
+  cursor: pointer;
+}
+
+.action-cell {
+  width: 120px;
+}
+
+.action-cell button {
+  margin-right: 5px;
+  padding: 4px 8px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-primary);
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--text-primary);
+  transition: var(--transition);
+}
+
+.preview-btn {
+  background: var(--primary-color);
+  color: var(--text-inverse);
+  border-color: var(--primary-color);
+}
+
+.preview-btn:hover {
+  background: var(--primary-hover);
+  border-color: var(--primary-hover);
+}
+
+.copy-btn {
+  background: var(--accent-color);
+  color: var(--text-inverse);
+  border-color: var(--accent-color);
+}
+
+.copy-btn:hover {
+  background: #1e7e34;
+  border-color: #1e7e34;
 }
 
 #image-table td {

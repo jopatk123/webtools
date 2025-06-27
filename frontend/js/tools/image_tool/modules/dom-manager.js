@@ -26,12 +26,15 @@ export class DomManager {
         for (const id of requiredElements) {
             const element = document.getElementById(id);
             if (!element) {
+                console.error(`Required element not found: ${id}`);
+                console.log('Available elements with IDs:', Array.from(document.querySelectorAll('[id]')).map(el => el.id));
                 throw new Error(`Required element not found: ${id}`);
             }
             elements[toCamelCase(id)] = element;
         }
         
         // 获取其他元素
+        elements.formatFilters = document.getElementById('format-filters');
         elements.formatCheckboxes = document.querySelectorAll('.format-filters input[type="checkbox"]');
         elements.inputGroup = document.querySelector('.input-group');
         elements.sortableHeaders = document.querySelectorAll('.sortable');

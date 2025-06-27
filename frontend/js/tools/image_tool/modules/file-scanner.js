@@ -16,31 +16,38 @@ export class FileScanner {
      * @returns {Promise<Array>} 图片文件数组
      */
     async scanWithHandle(dirHandle) {
+        console.log('scanWithHandle: 开始扫描', dirHandle.name);
         this.setLoadingState(true);
         
         try {
+            console.log('scanWithHandle: 调用 listFiles...');
             const files = await this.listFiles(dirHandle);
+            console.log(`scanWithHandle: listFiles 完成, 找到 ${files.length} 个文件/目录条目。`);
+            
             const selectedFormats = this.formatFilter.getSelectedFormats();
             
             const imageFiles = files.filter(file => {
                 return this.formatFilter.isImageFile(file.name, selectedFormats);
             });
+            console.log(`scanWithHandle: 过滤后剩下 ${imageFiles.length} 个图片文件。`);
 
             const processedImages = await Promise.all(imageFiles.map(async file => ({
-                path: file.name, 
+                path: file.relativePath || file.name, // 优先使用 relativePath
                 size: file.size,
                 type: file.type,
                 extension: file.name.split('.').pop(),
                 url: URL.createObjectURL(file),
                 handle: file // 保存文件对象本身以便需要时使用
             })));
+            console.log('scanWithHandle: 图片处理完成。');
 
             return processedImages;
         } catch (error) {
-            console.error('Error scanning with handle:', error);
+            console.error('scanWithHandle: 扫描时捕获到错误:', error);
             showStatus(this.dom.elements.status, '扫描文件夹时出错', STATUS_TYPES.ERROR);
             throw error;
         } finally {
+            console.log('scanWithHandle: 执行 finally 块, 重置加载状态。');
             this.setLoadingState(false);
         }
     }
@@ -51,30 +58,10 @@ export class FileScanner {
      * @returns {Promise<Array>} 图片文件数组
      */
     async scanWithPath(folderPath) {
-        this.setLoadingState(true);
-        
-        try {
-            const response = await fetch(`/api/scan-images?path=${encodeURIComponent(folderPath)}`);
-            
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-            }
-            
-            const data = await response.json();
-            
-            if (data.error) {
-                throw new Error(data.error);
-            }
-            
-            const allImages = data.images || [];
-            return this.formatFilter.filterImagesByFormat(allImages);
-        } catch (error) {
-            console.error('扫描错误:', error);
-            showStatus(this.dom.elements.status, '扫描失败: ' + error.message, STATUS_TYPES.ERROR);
-            throw error;
-        } finally {
-            this.setLoadingState(false);
-        }
+        // This method is deprecated as backend scanning is insecure and not feasible.
+        // We will show a notification to the user and do nothing.
+        showStatus(this.dom.elements.status, '手动输入路径扫描已被禁用，请使用“浏览”按钮选择文件夹。', STATUS_TYPES.WARNING);
+        return [];
     }
     
     /**
@@ -82,16 +69,24 @@ export class FileScanner {
      * @param {FileSystemDirectoryHandle} dirHandle - 目录句柄
      * @returns {Promise<Array>} 文件数组
      */
-    async listFiles(dirHandle) {
+    async listFiles(dirHandle, path = '') {
         const files = [];
+        console.log(`listFiles: 正在扫描目录: ${path || dirHandle.name}`);
         
         for await (const entry of dirHandle.values()) {
+            const newPath = path ? `${path}/${entry.name}` : entry.name;
             if (entry.kind === 'file') {
-                const file = await entry.getFile();
-                files.push(file);
+                try {
+                    const file = await entry.getFile();
+                    // 附加相对路径，以便调试
+                    file.relativePath = newPath;
+                    files.push(file);
+                } catch (e) {
+                    console.warn(`无法访问文件: ${newPath}`, e);
+                }
             } else if (entry.kind === 'directory') {
                 // 递归扫描子目录
-                const subFiles = await this.listFiles(entry);
+                const subFiles = await this.listFiles(entry, newPath);
                 files.push(...subFiles);
             }
         }
@@ -115,6 +110,8 @@ export class FileScanner {
         } else {
             scanBtn.disabled = false;
             scanBtn.classList.remove('loading');
+            // 清除加载状态消息
+            showStatus(this.dom.elements.status, '', '');
         }
     }
     

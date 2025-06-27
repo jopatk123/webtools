@@ -1,3 +1,6 @@
+<link rel="stylesheet" href="../css/image_tool.css">
+    <link rel="stylesheet" href="../css/image_preview.css">
+
 <div class="image-tool-container">
     <div class="tool-header">
         <h2>图片工具</h2>
@@ -52,15 +55,22 @@
     <div id="results-area" style="display: none;">
         <div class="results-header">
             <div class="results-title">扫描结果</div>
-            <div class="results-count" id="image-count">0</div>
+            <div class="results-actions">
+                <button id="remove-selected-btn" class="remove-btn" disabled>移除选中</button>
+                <div class="results-count" id="image-count">0</div>
+            </div>
         </div>
         <div class="table-container">
             <table id="image-table">
                 <thead>
                     <tr>
-                        <th data-sort="name">图片路径 <span class="sort-indicator"></span></th>
-                        <th data-sort="size">文件大小 <span class="sort-indicator"></span></th>
-                        <th data-sort="type">类型 <span class="sort-indicator"></span></th>
+                        <th class="index-column">序号</th>
+                        <th class="checkbox-column">
+                            <input type="checkbox" id="select-all-checkbox" title="全选/取消全选">
+                        </th>
+                        <th data-sort="path" class="sortable">图片路径 <span class="sort-indicator"></span></th>
+                        <th data-sort="size" class="sortable">文件大小 <span class="sort-indicator"></span></th>
+                        <th data-sort="type" class="sortable">类型 <span class="sort-indicator"></span></th>
                         <th>操作</th>
                     </tr>
                 </thead>

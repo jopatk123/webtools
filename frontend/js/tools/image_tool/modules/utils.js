@@ -69,6 +69,13 @@ export function showNotification(message, type = NOTIFICATION_TYPES.INFO) {
  */
 export function showStatus(statusDiv, message, type) {
     statusDiv.textContent = message;
+    
+    // 如果消息为空，清除所有状态类
+    if (!message || message.trim() === '') {
+        statusDiv.className = 'status';
+        return;
+    }
+    
     statusDiv.className = `status ${type}`;
     
     // 自动隐藏成功消息

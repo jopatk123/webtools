@@ -10,7 +10,8 @@ export const STATUS_TYPES = {
     SUCCESS: 'success',
     ERROR: 'error',
     WARNING: 'warning',
-    LOADING: 'loading'
+    LOADING: 'loading',
+    IDLE: 'idle'
 };
 
 // 排序方向

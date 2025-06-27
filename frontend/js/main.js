@@ -83,15 +83,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // 加载并执行对应的JS
                 const script = document.createElement('script');
-                script.src = `js/tools/${toolName}.js`;
-                script.type = 'module'; // 支持ES6模块
+                // 根据工具类型选择正确的脚本路径
+                if (toolName === 'image_tool') {
+                    script.src = `js/tools/${toolName}/index.js`;
+                    script.type = 'module'; // ES6模块
+                } else {
+                    script.src = `js/tools/${toolName}.js`;
+                }
+                
                 script.onload = () => {
-                    // 对于模块化的工具，应用会自动初始化
                     // 对于传统工具，尝试调用初始化函数
-                    const initFunctionName = `init${capitalize(toolName).replace('_', '')}`;
-                    if (typeof window[initFunctionName] === 'function') {
-                        window[initFunctionName]();
+                    if (toolName !== 'image_tool') {
+                        const initFunctionName = `init${capitalize(toolName)}`;
+                        if (typeof window[initFunctionName] === 'function') {
+                            window[initFunctionName]();
+                        }
                     }
+                    // image_tool 模块会自动初始化
                 };
                 script.onerror = () => {
                     console.error('Error loading script:', script.src);
@@ -128,11 +136,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function capitalize(str) {
         const parts = str.split('_');
-        const capitalized = parts.map((part, index) => {
-            if (index === 0) {
-                return part.charAt(0).toUpperCase() + part.slice(1);
-            }
-            return part;
+        const capitalized = parts.map(part => {
+            return part.charAt(0).toUpperCase() + part.slice(1);
         });
         return capitalized.join('');
     }

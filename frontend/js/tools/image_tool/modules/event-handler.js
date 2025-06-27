@@ -5,12 +5,13 @@ import { showNotification, debounce } from './utils.js';
 import { NOTIFICATION_TYPES } from '../constants.js';
 
 export class EventHandler {
-    constructor(domManager, fileScanner, formatFilter, imageDisplay, modalManager) {
+    constructor(domManager, fileScanner, formatFilter, imageDisplay, modalManager, previewManager) {
         this.dom = domManager;
         this.fileScanner = fileScanner;
         this.formatFilter = formatFilter;
         this.imageDisplay = imageDisplay;
         this.modalManager = modalManager;
+        this.previewManager = previewManager;
         
         this.initializeEvents();
     }
@@ -32,13 +33,22 @@ export class EventHandler {
      * 初始化浏览相关事件
      */
     initializeBrowseEvents() {
+        console.log('初始化浏览事件...');
+        console.log('browseBtn元素:', this.dom.elements.browseBtn);
+        
         // 浏览文件夹按钮
         this.dom.elements.browseBtn.addEventListener('click', async () => {
+            console.log('浏览按钮被点击');
             try {
                 if ('showDirectoryPicker' in window) {
                     const directoryHandle = await window.showDirectoryPicker();
+                    // 保存句柄，供扫描时使用
+                    window.currentDirectoryHandle = directoryHandle;
                     this.dom.elements.folderPath.value = directoryHandle.name;
-                    await this.fileScanner.scanWithHandle(directoryHandle);
+                    // 选择后直接扫描
+                    const images = await this.fileScanner.scanWithHandle(directoryHandle);
+                    this.imageDisplay.setImages(images);
+                    this.imageDisplay.sortAndDisplay();
                 } else {
                     showNotification('您的浏览器不支持现代文件系统API，请手动输入路径', NOTIFICATION_TYPES.WARNING);
                 }
@@ -57,13 +67,23 @@ export class EventHandler {
     initializeScanEvents() {
         // 扫描按钮
         this.dom.elements.scanBtn.addEventListener('click', async () => {
-            const folderPath = this.dom.elements.folderPath.value.trim();
-            if (!folderPath) {
-                showNotification('请先选择或输入文件夹路径', NOTIFICATION_TYPES.WARNING);
-                return;
+            let images;
+            // 检查是否使用了现代文件系统API
+            if (window.currentDirectoryHandle) {
+                // 使用现代API扫描
+                images = await this.fileScanner.scanWithHandle(window.currentDirectoryHandle);
+            } else {
+                // 使用传统路径扫描
+                const folderPath = this.dom.elements.folderPath.value.trim();
+                if (!folderPath) {
+                    showNotification('请先选择或输入文件夹路径', NOTIFICATION_TYPES.WARNING);
+                    return;
+                }
+                images = await this.fileScanner.scanWithPath(folderPath);
             }
             
-            await this.fileScanner.scanWithPath(folderPath);
+            this.imageDisplay.setImages(images);
+            this.imageDisplay.sortAndDisplay();
         });
         
         // 文件夹路径输入框回车事件
@@ -71,7 +91,9 @@ export class EventHandler {
             if (e.key === 'Enter') {
                 const folderPath = e.target.value.trim();
                 if (folderPath) {
-                    await this.fileScanner.scanWithPath(folderPath);
+                    const images = await this.fileScanner.scanWithPath(folderPath);
+                    this.imageDisplay.setImages(images);
+                    this.imageDisplay.sortAndDisplay();
                 }
             }
         });
@@ -115,26 +137,59 @@ export class EventHandler {
             const th = e.target.closest('th[data-sort]');
             if (th) {
                 const sortBy = th.dataset.sort;
-                this.imageDisplay.toggleSort(sortBy);
+                this.imageDisplay.setSorting(sortBy);
+            }
+            
+            // 单元格排序事件
+            const sortableCell = e.target.closest('.sortable-cell');
+            if (sortableCell) {
+                const sortBy = sortableCell.dataset.sort;
+                this.imageDisplay.setSorting(sortBy);
             }
         });
         
-        // 表格行点击预览事件
+        // 预览按钮事件
         this.dom.elements.imageTable.addEventListener('click', (e) => {
-            const row = e.target.closest('tr[data-image-path]');
-            if (row && !e.target.closest('button')) {
-                const imagePath = row.dataset.imagePath;
-                this.modalManager.previewImage(imagePath);
+            if (e.target.classList.contains('preview-btn')) {
+                const imagePath = e.target.dataset.url;
+                const allImages = this.imageDisplay.getImages();
+                this.previewManager.previewImage(imagePath, allImages);
             }
         });
         
         // 复制路径按钮事件
         this.dom.elements.imageTable.addEventListener('click', (e) => {
-            if (e.target.classList.contains('copy-path-btn')) {
+            if (e.target.classList.contains('copy-btn')) {
                 const imagePath = e.target.dataset.path;
                 this.copyImagePath(imagePath);
             }
         });
+        
+        // 行选择事件
+        this.dom.elements.imageTable.addEventListener('change', (e) => {
+            if (e.target.classList.contains('row-checkbox')) {
+                this.imageDisplay.updateRemoveButtonState();
+                this.imageDisplay.updateSelectAllState();
+            }
+        });
+        
+        // 全选事件
+        const selectAllCheckbox = document.getElementById('select-all-checkbox');
+        if (selectAllCheckbox) {
+            selectAllCheckbox.addEventListener('change', (e) => {
+                this.imageDisplay.selectAll(e.target.checked);
+            });
+        }
+        
+        // 移除选中按钮事件
+        const removeBtn = document.getElementById('remove-selected-btn');
+        if (removeBtn) {
+            removeBtn.addEventListener('click', () => {
+                if (confirm('确定要移除选中的图片吗？')) {
+                    this.imageDisplay.removeSelectedImages();
+                }
+            });
+        }
     }
     
     /**
@@ -198,6 +253,64 @@ export class EventHandler {
      */
     initializeWindowEvents() {
         // 窗口大小变化
+        window.addEventListener('resize', debounce(() => {
+            // 可以在这里处理窗口大小变化的逻辑
+        }, 250));
+    }
+    
+    /**
+     * 复制图片路径到剪贴板
+     * @param {string} imagePath - 图片路径
+     */
+    async copyImagePath(imagePath) {
+        try {
+            await navigator.clipboard.writeText(imagePath);
+            showNotification('路径已复制到剪贴板', NOTIFICATION_TYPES.SUCCESS);
+        } catch (error) {
+            console.error('复制失败:', error);
+            showNotification('复制失败', NOTIFICATION_TYPES.ERROR);
+        }
+    }
+    
+    /**
+     * 阻止默认事件
+     * @param {Event} e - 事件对象
+     */
+    preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+    
+    /**
+     * 处理文件拖拽
+     * @param {DragEvent} e - 拖拽事件
+     */
+    async handleDrop(e) {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        
+        if (files.length > 0) {
+            // 处理拖拽的文件夹
+            const firstFile = files[0];
+            if (firstFile.webkitGetAsEntry) {
+                const entry = firstFile.webkitGetAsEntry();
+                if (entry && entry.isDirectory) {
+                    this.dom.elements.folderPath.value = entry.name;
+                    // 这里可以扩展处理拖拽文件夹的逻辑
+                }
+            }
+        }
+    }
+    
+    /**
+     * 处理格式过滤器变化
+     */
+    handleFormatFilterChange() {
+        // 重新应用过滤器
+        const currentImages = this.imageDisplay.getImages();
+        if (currentImages.length > 0) {
+            this.imageDisplay.sortAndDisplay();
+        }
         window.addEventListener('resize', debounce(() => {
             this.modalManager.handleResize();
         }, 250));
