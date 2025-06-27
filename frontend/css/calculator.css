@@ -1,0 +1,411 @@
+/* 现代计算器样式 */
+.calculator-container {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 2rem;
+  max-width: 1000px;
+  margin: 0 auto;
+  height: fit-content;
+}
+
+/* 计算器主体 */
+.calculator {
+  background: var(--bg-primary);
+  border-radius: var(--radius-xl);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-color);
+  transition: var(--transition);
+}
+
+.calculator:hover {
+  box-shadow: var(--shadow-xl);
+}
+
+/* 显示区域 */
+.display-section {
+  position: relative;
+  margin-bottom: 1.5rem;
+}
+
+.history {
+  position: absolute;
+  top: 0.75rem;
+  right: 1rem;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  font-weight: 400;
+  z-index: 1;
+  pointer-events: none;
+}
+
+#display {
+  width: 100%;
+  height: 120px;
+  font-size: 2.5rem;
+  font-weight: 300;
+  text-align: right;
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  padding: 1rem 1.5rem;
+  transition: var(--transition);
+  font-family: 'Inter', monospace;
+}
+
+#display:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+/* 按钮网格 */
+.buttons {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+}
+
+/* 0按钮占据两列 */
+.buttons button.zero {
+  grid-column: span 2;
+}
+
+.buttons button {
+  height: 60px;
+  font-size: 1.25rem;
+  font-weight: 500;
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.buttons button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.buttons button:hover::before {
+  left: 100%;
+}
+
+.buttons button:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--border-hover);
+}
+
+.buttons button:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm);
+}
+
+/* 数字按钮 */
+.buttons button:not(.op) {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.buttons button:not(.op):hover {
+  background: var(--bg-secondary);
+}
+
+/* 操作符按钮 */
+.buttons button.op {
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+  color: var(--text-inverse);
+  border-color: var(--primary-color);
+  font-weight: 600;
+}
+
+.buttons button.op:hover {
+  background: linear-gradient(135deg, var(--primary-hover), var(--primary-color));
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* 特殊按钮样式 */
+.buttons button.op[data-action="clear"] {
+  background: linear-gradient(135deg, var(--danger-color), #dc2626);
+  border-color: var(--danger-color);
+}
+
+.buttons button.op[data-action="backspace"] {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  border-color: #f59e0b;
+  font-size: 1.5rem;
+}
+
+.buttons button.op[data-action="equals"] {
+  background: linear-gradient(135deg, var(--accent-color), #059669);
+  border-color: var(--accent-color);
+  grid-column: span 2;
+}
+
+/* 历史面板 */
+.history-panel {
+  background: var(--bg-primary);
+  border-radius: var(--radius-xl);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  height: fit-content;
+  max-height: 500px;
+}
+
+.history-panel h3 {
+  margin: 0 0 1rem 0;
+  text-align: center;
+  color: var(--text-primary);
+  font-size: 1.125rem;
+  font-weight: 600;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+#history-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  flex: 1;
+  overflow-y: auto;
+  max-height: 300px;
+  margin-bottom: 1rem;
+}
+
+#history-list:empty::after {
+  content: '暂无计算历史';
+  display: block;
+  text-align: center;
+  color: var(--text-tertiary);
+  font-style: italic;
+  padding: 2rem 0;
+}
+
+#history-list li {
+  padding: 0.75rem;
+  margin-bottom: 0.5rem;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  font-family: 'Inter', monospace;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  transition: var(--transition);
+  cursor: pointer;
+}
+
+#history-list li:hover {
+  background: var(--bg-tertiary);
+  border-color: var(--border-hover);
+  color: var(--text-primary);
+  transform: translateX(4px);
+}
+
+#history-list li:last-child {
+  margin-bottom: 0;
+}
+
+/* 历史按钮容器 */
+.history-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+#copy-history {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  background: linear-gradient(135deg, var(--accent-color), #059669);
+  color: var(--text-inverse);
+  border: 2px solid var(--accent-color);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  font-weight: 500;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+#clear-history {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  background: linear-gradient(135deg, var(--danger-color), #dc2626);
+  color: var(--text-inverse);
+  border: 2px solid var(--danger-color);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  font-weight: 500;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+#copy-history:hover {
+  background: linear-gradient(135deg, #059669, var(--accent-color));
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+#copy-history:active {
+  transform: translateY(0);
+}
+
+#copy-history::before {
+  content: '📋';
+  font-size: 1rem;
+}
+
+#clear-history:hover {
+  background: linear-gradient(135deg, #dc2626, var(--danger-color));
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+#clear-history:active {
+  transform: translateY(0);
+}
+
+#clear-history::before {
+  content: '🗑️';
+  font-size: 1rem;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .calculator-container {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .calculator {
+    padding: 1rem;
+  }
+  
+  #display {
+    height: 70px;
+    font-size: 2rem;
+    padding: 0.75rem 1rem;
+  }
+  
+  .buttons {
+    gap: 0.5rem;
+  }
+  
+  .buttons button {
+    height: 50px;
+    font-size: 1.125rem;
+  }
+  
+  .history-panel {
+    padding: 1rem;
+    max-height: 300px;
+  }
+  
+  #history-list {
+    max-height: 200px;
+  }
+}
+
+@media (max-width: 480px) {
+  .calculator {
+    padding: 0.75rem;
+  }
+  
+  #display {
+    height: 60px;
+    font-size: 1.75rem;
+    padding: 0.5rem 0.75rem;
+  }
+  
+  .buttons {
+    gap: 0.375rem;
+  }
+  
+  .buttons button {
+    height: 45px;
+    font-size: 1rem;
+  }
+  
+  .history-panel {
+    padding: 0.75rem;
+  }
+}
+
+/* 错误状态 */
+#display.error {
+  border-color: var(--danger-color);
+  background: rgba(239, 68, 68, 0.05);
+  color: var(--danger-color);
+}
+
+/* 加载动画 */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.calculating {
+  animation: pulse 1s infinite;
+}
+
+/* 按钮按下效果 */
+.buttons button.pressed {
+  transform: scale(0.95);
+  background: var(--primary-color);
+  color: var(--text-inverse);
+}
+
+.buttons button.op.pressed {
+  background: var(--primary-hover);
+}
+
+/* 键盘快捷键提示 */
+.keyboard-hint {
+  position: absolute;
+  bottom: -1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  text-align: center;
+  opacity: 0;
+  transition: var(--transition);
+}
+
+.calculator:hover .keyboard-hint {
+  opacity: 1;
+}
+
+/* 暗色主题特定样式 */
+[data-theme="dark"] .calculator {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -4px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .buttons button {
+  border-color: var(--border-color);
+}
+
+[data-theme="dark"] .buttons button:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+}

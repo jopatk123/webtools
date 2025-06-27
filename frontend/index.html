@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>现代工具箱</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/calculator.css">
+    <link rel="stylesheet" href="css/image_tool.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fas fa-toolbox"></i>
+                    <span>工具箱</span>
+                </div>
+            </div>
+            <nav class="sidebar-nav" id="tool-navigation">
+                <ul>
+                    <li>
+                        <a href="#" data-tool="calculator" class="nav-item active">
+                            <i class="fas fa-calculator"></i>
+                            <span>计算器</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" data-tool="image_tool" class="nav-item">
+                            <i class="fas fa-images"></i>
+                            <span>图片工具</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="theme-toggle">
+                    <button id="theme-toggle" title="切换主题">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                </div>
+            </div>
+        </aside>
+        
+        <main class="main-content">
+            <header class="main-header">
+                <div class="header-content">
+                    <h1 id="page-title">计算器</h1>
+                    <div class="header-actions">
+                        <button class="btn-icon" id="fullscreen-toggle" title="全屏">
+                            <i class="fas fa-expand"></i>
+                        </button>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="content-area" id="main-content">
+                <!-- 工具将在这里动态加载 -->
+            </div>
+        </main>
+    </div>
+
+    <script src="js/main.js"></script>
+</body>
+</html>

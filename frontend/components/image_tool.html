@@ -1,0 +1,85 @@
+<div class="image-tool-container">
+    <div class="tool-header">
+        <h2>图片工具</h2>
+        <p>扫描本地文件夹中的图片文件，支持预览和管理</p>
+    </div>
+    
+    <div class="input-area">
+        <div class="input-group">
+            <div class="input-field">
+                <label for="folder-path">文件夹路径</label>
+                <div class="path-input-container">
+                    <input type="text" id="folder-path" placeholder="请输入或粘贴本地文件夹的完整路径">
+                    <button id="browse-btn" title="选择文件夹">📁</button>
+                </div>
+            </div>
+            <button id="scan-btn">扫描图片</button>
+        </div>
+        
+        <div class="format-filters" id="format-filters">
+            <label class="filter-label" for="format-jpg">图片格式过滤：</label>
+            <div class="checkbox-group">
+                <label class="checkbox-item">
+                    <input type="checkbox" id="format-jpg" checked>
+                    <span>JPG/JPEG</span>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" id="format-png" checked>
+                    <span>PNG</span>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" id="format-gif" checked>
+                    <span>GIF</span>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" id="format-bmp" checked>
+                    <span>BMP</span>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" id="format-webp" checked>
+                    <span>WebP</span>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" id="format-svg" checked>
+                    <span>SVG</span>
+                </label>
+            </div>
+        </div>
+    </div>
+    
+    <div id="status" class="status"></div>
+    
+    <div id="results-area" style="display: none;">
+        <div class="results-header">
+            <div class="results-title">扫描结果</div>
+            <div class="results-count" id="image-count">0</div>
+        </div>
+        <div class="table-container">
+            <table id="image-table">
+                <thead>
+                    <tr>
+                        <th data-sort="name">图片路径 <span class="sort-indicator"></span></th>
+                        <th data-sort="size">文件大小 <span class="sort-indicator"></span></th>
+                        <th data-sort="type">类型 <span class="sort-indicator"></span></th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="image-table-body"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="empty-state" class="empty-state">
+        <div class="empty-state-icon">📁</div>
+        <h3>开始扫描</h3>
+        <p>输入文件夹路径并点击扫描按钮来查找图片文件</p>
+    </div>
+</div>
+
+<!-- 图片模态框 -->
+<div class="image-modal" id="image-modal">
+    <button class="image-modal-close" id="modal-close">×</button>
+    <div class="image-modal-content">
+        <img id="modal-image" src="" alt="">
+    </div>
+</div>

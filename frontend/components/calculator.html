@@ -1,0 +1,45 @@
+<div class="calculator-container">
+    <div class="calculator">
+        <div class="display-section">
+            <div class="history" id="history"></div>
+            <input type="text" id="display" readonly placeholder="0">
+        </div>
+        <div class="buttons">
+            <button class="op" data-action="clear">C</button>
+            <button class="op" data-action="backspace">⌫</button>
+            <button class="op">(</button>
+            <button class="op">)</button>
+
+            <button>7</button>
+            <button>8</button>
+            <button>9</button>
+            <button class="op">/</button>
+
+            <button>4</button>
+            <button>5</button>
+            <button>6</button>
+            <button class="op">*</button>
+
+            <button>1</button>
+            <button>2</button>
+            <button>3</button>
+            <button class="op">-</button>
+
+            <button class="zero">0</button>
+            <button>.</button>
+            <button class="op" data-action="equals">=</button>
+            <button class="op">+</button>
+        </div>
+        <div class="keyboard-hint">
+            支持键盘输入 • 按 C 清除 • 按 Enter 计算
+        </div>
+    </div>
+    <div class="history-panel">
+        <h3>计算历史</h3>
+        <ul id="history-list"></ul>
+        <div class="history-buttons">
+            <button id="copy-history">复制历史</button>
+            <button id="clear-history">清除历史</button>
+        </div>
+    </div>
+</div>
