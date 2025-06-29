@@ -241,8 +241,8 @@ const app = new ImageToolApp();
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => app.init());
 } else {
-    // 如果DOM已经加载完成，立即初始化
-    app.init();
+    // 如果DOM已经加载完成，延迟一点时间确保动态内容已渲染
+    setTimeout(() => app.init(), 100);
 }
 
 // 导出应用实例供外部使用

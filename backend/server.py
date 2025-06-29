@@ -4,7 +4,7 @@ import os
 import json
 from urllib.parse import urlparse, parse_qs
 
-PORT = 8000
+PORT = 8001
 
 # 获取脚本所在的目录
 backend_dir = os.path.dirname(os.path.abspath(__file__))

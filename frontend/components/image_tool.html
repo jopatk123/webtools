@@ -56,7 +56,8 @@
         <div class="results-header">
             <div class="results-title">扫描结果</div>
             <div class="results-actions">
-                <button id="remove-selected-btn" class="remove-btn" disabled>移除选中</button>
+                <button id="remove-selected-btn" class="action-btn remove-btn" disabled>移除选中</button>
+                <button id="export-results-btn" class="action-btn export-btn">导出结果</button>
                 <div class="results-count" id="image-count">0</div>
             </div>
         </div>
@@ -65,9 +66,6 @@
                 <thead>
                     <tr>
                         <th class="index-column">序号</th>
-                        <th class="checkbox-column">
-                            <input type="checkbox" id="select-all-checkbox" title="全选/取消全选">
-                        </th>
                         <th data-sort="path" class="sortable">图片路径 <span class="sort-indicator"></span></th>
                         <th data-sort="size" class="sortable">文件大小 <span class="sort-indicator"></span></th>
                         <th data-sort="type" class="sortable">类型 <span class="sort-indicator"></span></th>

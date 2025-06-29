@@ -165,22 +165,6 @@ export class EventHandler {
             }
         });
         
-        // 行选择事件
-        this.dom.elements.imageTable.addEventListener('change', (e) => {
-            if (e.target.classList.contains('row-checkbox')) {
-                this.imageDisplay.updateRemoveButtonState();
-                this.imageDisplay.updateSelectAllState();
-            }
-        });
-        
-        // 全选事件
-        const selectAllCheckbox = document.getElementById('select-all-checkbox');
-        if (selectAllCheckbox) {
-            selectAllCheckbox.addEventListener('change', (e) => {
-                this.imageDisplay.selectAll(e.target.checked);
-            });
-        }
-        
         // 移除选中按钮事件
         const removeBtn = document.getElementById('remove-selected-btn');
         if (removeBtn) {
@@ -190,6 +174,23 @@ export class EventHandler {
                 }
             });
         }
+        
+        // 导出结果按钮事件
+        const exportBtn = document.getElementById('export-results-btn');
+        if (exportBtn) {
+            exportBtn.addEventListener('click', () => {
+                this.imageDisplay.exportResults();
+            });
+        }
+        
+        // 表格行点击事件（用于选择/取消选择）
+        this.dom.elements.imageTable.addEventListener('click', (e) => {
+            const row = e.target.closest('tr[data-image-path]');
+            if (row && !e.target.closest('button')) {
+                // 只有点击行本身（不是按钮）时才触发选择
+                this.imageDisplay.toggleRowSelection(row);
+            }
+        });
     }
     
     /**

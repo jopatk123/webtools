@@ -110,14 +110,13 @@ export class ImageDisplay {
         indexCell.textContent = index + 1;
         row.appendChild(indexCell);
         
-        // 选择框列
-        const checkboxCell = document.createElement('td');
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.className = 'row-checkbox';
-        checkbox.value = image.path;
-        checkboxCell.appendChild(checkbox);
-        row.appendChild(checkboxCell);
+        // 添加点击选择功能
+        row.addEventListener('click', (e) => {
+            // 如果点击的是按钮，不触发行选择
+            if (e.target.tagName === 'BUTTON') return;
+            
+            this.toggleRowSelection(row);
+        });
         
         // 路径列
         const pathCell = document.createElement('td');
@@ -161,6 +160,108 @@ export class ImageDisplay {
         row.appendChild(actionCell);
         
         return row;
+    }
+    
+    /**
+     * 切换行选择状态
+     * @param {HTMLTableRowElement} row - 表格行元素
+     */
+    toggleRowSelection(row) {
+        row.classList.toggle('selected');
+        this.updateRemoveButtonState();
+    }
+    
+    /**
+     * 获取选中的图片路径
+     * @returns {Array} 选中的图片路径数组
+     */
+    getSelectedImagePaths() {
+        const selectedRows = this.dom.elements.imageTableBody.querySelectorAll('tr.selected');
+        return Array.from(selectedRows).map(row => row.dataset.imagePath);
+    }
+    
+    /**
+     * 移除选中的图片
+     */
+    removeSelectedImages() {
+        const selectedPaths = this.getSelectedImagePaths();
+        if (selectedPaths.length === 0) return;
+        
+        // 从当前图片数组中移除选中的图片
+        this.currentImages = this.currentImages.filter(image => 
+            !selectedPaths.includes(image.path)
+        );
+        
+        // 重新显示
+        this.sortAndDisplay();
+        
+        // 更新按钮状态
+        this.updateRemoveButtonState();
+    }
+    
+    /**
+     * 更新移除按钮状态
+     */
+    updateRemoveButtonState() {
+        const removeBtn = document.getElementById('remove-selected-btn');
+        const selectedCount = this.getSelectedImagePaths().length;
+        
+        if (removeBtn) {
+            removeBtn.disabled = selectedCount === 0;
+            removeBtn.textContent = selectedCount > 0 ? `移除选中 (${selectedCount})` : '移除选中';
+        }
+    }
+    
+    /**
+     * 导出扫描结果
+     */
+    exportResults() {
+        if (this.currentImages.length === 0) {
+            alert('没有可导出的图片数据');
+            return;
+        }
+        
+        // 创建导出数据
+        const exportData = {
+            exportTime: new Date().toISOString(),
+            totalCount: this.currentImages.length,
+            images: this.currentImages.map(image => ({
+                path: image.path,
+                size: image.size,
+                extension: image.extension,
+                sizeFormatted: formatFileSize(image.size)
+            }))
+        };
+        
+        // 创建下载链接
+        const dataStr = JSON.stringify(exportData, null, 2);
+        const dataBlob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(dataBlob);
+        
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `image_scan_results_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.json`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        // 清理URL对象
+        URL.revokeObjectURL(url);
+        
+        alert(`已导出 ${this.currentImages.length} 张图片的扫描结果`);
+    }
+    
+    /**
+     * 格式化文件大小
+     * @param {number} bytes - 字节数
+     * @returns {string} 格式化后的文件大小
+     */
+    formatFileSize(bytes) {
+        if (bytes === 0) return '0 B';
+        const k = 1024;
+        const sizes = ['B', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     }
     
     /**
