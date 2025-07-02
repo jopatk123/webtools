@@ -28,16 +28,7 @@
   margin-bottom: 1.5rem;
 }
 
-.history {
-  position: absolute;
-  top: 0.75rem;
-  right: 1rem;
-  font-size: 0.875rem;
-  color: var(--text-secondary);
-  font-weight: 400;
-  z-index: 1;
-  pointer-events: none;
-}
+
 
 #display {
   width: 100%;

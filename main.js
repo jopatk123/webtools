@@ -70,7 +70,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         // 加载HTML组件
-        fetch(`components/${toolName}.html`)
+        fetch(`frontend/components/${toolName}.html`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -82,7 +82,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 // 加载并执行对应的JS
                 const script = document.createElement('script');
-                script.src = `js/tools/${toolName}.js`;
+                script.src = `frontend/js/tools/${toolName}.js`;
                 
                 script.onload = () => {
                     // 尝试调用初始化函数

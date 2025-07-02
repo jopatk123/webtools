@@ -1,6 +1,5 @@
 function initCalculator() {
     const display = document.getElementById('display');
-    const history = document.getElementById('history');
     const historyList = document.getElementById('history-list');
     const buttons = document.querySelector('.buttons');
     const copyHistoryBtn = document.getElementById('copy-history');
@@ -138,7 +137,6 @@ function initCalculator() {
             addToHistory(fullExpression, formattedResult);
             lastResult = formattedResult;
             currentInput = formattedResult;
-            history.textContent = fullExpression + ' =';
             shouldResetOnNextInput = true;
             
             setTimeout(() => {
@@ -165,7 +163,6 @@ function initCalculator() {
         fullExpression = '';
         lastResult = null;
         shouldResetOnNextInput = false;
-        history.textContent = '';
         display.classList.remove('error', 'calculating');
         updateDisplay();
     }

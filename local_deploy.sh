@@ -7,6 +7,7 @@
 DEPLOY_PATH="/var/www/webtools"
 SERVICE_PORT="8001"
 SERVICE_NAME="webtools"
+PUBLIC_IP="1.14.200.211"  # 公网IP地址
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # 颜色定义
@@ -146,20 +147,33 @@ copy_files() {
 
 # 安装Python依赖
 install_python_dependencies() {
-    log_info "安装Python依赖..."
+    log_info "检查Python依赖..."
     
     if [[ -f "$DEPLOY_PATH/requirements.txt" ]]; then
-        if sudo -u www-data python3 -m pip install -r "$DEPLOY_PATH/requirements.txt"; then
-            log_success "Python依赖安装成功"
-            return 0
+        # 检查requirements.txt内容
+        if [[ -s "$DEPLOY_PATH/requirements.txt" ]]; then
+            log_info "发现requirements.txt文件，尝试安装依赖..."
+            
+            # 尝试使用虚拟环境安装依赖
+            if python3 -m venv "$DEPLOY_PATH/venv" 2>/dev/null && \
+               source "$DEPLOY_PATH/venv/bin/activate" && \
+               pip install -r "$DEPLOY_PATH/requirements.txt" 2>/dev/null; then
+                log_success "Python依赖安装成功（使用虚拟环境）"
+                # 更新服务文件以使用虚拟环境
+                sudo sed -i "s|ExecStart=/usr/bin/python3|ExecStart=$DEPLOY_PATH/venv/bin/python3|" "/etc/systemd/system/$SERVICE_NAME.service"
+                sudo systemctl daemon-reload
+            else
+                log_warning "Python依赖安装失败，使用系统Python运行"
+                log_info "注意：当前项目使用简单的HTTP服务器，无需额外依赖即可运行"
+            fi
         else
-            log_warning "Python依赖安装失败，但继续部署"
-            return 0
+            log_info "requirements.txt文件为空，跳过依赖安装"
         fi
     else
         log_info "未找到requirements.txt文件，跳过依赖安装"
-        return 0
     fi
+    
+    return 0
 }
 
 # 创建systemd服务
@@ -249,13 +263,14 @@ start_service() {
         if sudo systemctl is-active --quiet "$SERVICE_NAME"; then
             log_success "服务启动成功"
             
-            # 获取服务器IP
-            local server_ip=$(hostname -I | awk '{print $1}')
-            if [[ -z "$server_ip" ]]; then
-                server_ip="localhost"
-            fi
+            # 显示访问地址
+            log_success "应用已部署，访问地址: http://$PUBLIC_IP:$SERVICE_PORT"
             
-            log_success "应用已部署，访问地址: http://$server_ip:$SERVICE_PORT"
+            # 同时显示本地访问地址
+            local local_ip=$(hostname -I | awk '{print $1}')
+            if [[ -n "$local_ip" && "$local_ip" != "$PUBLIC_IP" ]]; then
+                log_info "本地访问地址: http://$local_ip:$SERVICE_PORT"
+            fi
             return 0
         else
             log_error "服务启动失败"
