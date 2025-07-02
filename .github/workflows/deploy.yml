@@ -1,0 +1,123 @@
+name: Deploy WebTools to Server
+
+# 触发条件：推送到main分支或手动触发
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+        - production
+        - staging
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        # 如果有requirements.txt，安装依赖
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        
+    - name: Setup SSH
+      uses: webfactory/ssh-agent@v0.8.0
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+        
+    - name: Add server to known hosts
+      run: |
+        ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+        
+    - name: Deploy to server
+      env:
+        SERVER_HOST: ${{ secrets.SERVER_HOST }}
+        SERVER_USER: ${{ secrets.SERVER_USER }}
+        DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+        SERVICE_NAME: ${{ secrets.SERVICE_NAME }}
+      run: |
+        # 创建部署目录
+        ssh $SERVER_USER@$SERVER_HOST "mkdir -p $DEPLOY_PATH"
+        
+        # 同步文件到服务器
+        rsync -avz --delete \
+          --exclude='.git' \
+          --exclude='.github' \
+          --exclude='__pycache__' \
+          --exclude='*.pyc' \
+          --exclude='.DS_Store' \
+          --exclude='Thumbs.db' \
+          --exclude='deploy_config.py' \
+          --exclude='deploy.py' \
+          --exclude='auto_deploy.sh' \
+          --exclude='deploy.bat' \
+          ./ $SERVER_USER@$SERVER_HOST:$DEPLOY_PATH/
+        
+        # 创建systemd服务文件
+        ssh $SERVER_USER@$SERVER_HOST "cat > /tmp/webtools.service << 'EOF'
+        [Unit]
+        Description=WebTools Application
+        After=network.target
+        
+        [Service]
+        Type=simple
+        User=www-data
+        Group=www-data
+        WorkingDirectory=$DEPLOY_PATH
+        ExecStart=/usr/bin/python3 $DEPLOY_PATH/backend/server.py
+        Restart=always
+        RestartSec=5
+        Environment=PYTHONPATH=$DEPLOY_PATH
+        
+        [Install]
+        WantedBy=multi-user.target
+        EOF"
+        
+        # 安装并启动服务
+        ssh $SERVER_USER@$SERVER_HOST "
+          sudo mv /tmp/webtools.service /etc/systemd/system/$SERVICE_NAME.service
+          sudo systemctl daemon-reload
+          sudo systemctl enable $SERVICE_NAME
+          sudo systemctl restart $SERVICE_NAME
+          sudo systemctl status $SERVICE_NAME
+        "
+        
+    - name: Health check
+      env:
+        SERVER_HOST: ${{ secrets.SERVER_HOST }}
+        SERVICE_PORT: ${{ secrets.SERVICE_PORT || '8001' }}
+      run: |
+        # 等待服务启动
+        sleep 10
+        
+        # 检查服务是否正常运行
+        if curl -f http://$SERVER_HOST:$SERVICE_PORT/ > /dev/null 2>&1; then
+          echo "✅ 部署成功！服务正常运行"
+          echo "🌐 访问地址: http://$SERVER_HOST:$SERVICE_PORT"
+        else
+          echo "❌ 部署失败！服务无法访问"
+          exit 1
+        fi
+        
+    - name: Notify deployment status
+      if: always()
+      run: |
+        if [ "${{ job.status }}" == "success" ]; then
+          echo "🎉 WebTools 部署成功完成！"
+        else
+          echo "💥 WebTools 部署失败，请检查日志"
+        fi

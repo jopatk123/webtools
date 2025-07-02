@@ -7,8 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // 工具名称映射
     const toolNames = {
-        'calculator': '计算器',
-        'image_tool': '图片工具'
+        'calculator': '计算器'
     };
     
     // 当前加载的脚本
@@ -83,23 +82,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // 加载并执行对应的JS
                 const script = document.createElement('script');
-                // 根据工具类型选择正确的脚本路径
-                if (toolName === 'image_tool') {
-                    script.src = `js/tools/${toolName}/index.js`;
-                    script.type = 'module'; // ES6模块
-                } else {
-                    script.src = `js/tools/${toolName}.js`;
-                }
+                script.src = `js/tools/${toolName}.js`;
                 
                 script.onload = () => {
-                    // 对于传统工具，尝试调用初始化函数
-                    if (toolName !== 'image_tool') {
-                        const initFunctionName = `init${capitalize(toolName)}`;
-                        if (typeof window[initFunctionName] === 'function') {
-                            window[initFunctionName]();
-                        }
+                    // 尝试调用初始化函数
+                    const initFunctionName = `init${capitalize(toolName)}`;
+                    if (typeof window[initFunctionName] === 'function') {
+                        window[initFunctionName]();
                     }
-                    // image_tool 模块会自动初始化
                 };
                 script.onerror = () => {
                     console.error('Error loading script:', script.src);
