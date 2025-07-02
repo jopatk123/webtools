@@ -11,9 +11,11 @@
 ├── frontend/               # 前端代码
 │   ├── components/         # 可复用的HTML组件
 │   │   ├── calculator.html
+│   │   ├── image_preview.html
 │   │   └── image_tool.html
 │   ├── css/                # 样式文件
 │   │   ├── calculator.css
+│   │   ├── image_preview.css
 │   │   ├── image_tool.css
 │   │   └── style.css
 │   ├── index.html          # 主页面
@@ -31,6 +33,7 @@
 │                   ├── format-filter.js
 │                   ├── image-display.js
 │                   ├── modal-manager.js
+│                   ├── preview-manager.js
 │                   └── utils.js
 ├── README.md                # 项目说明
 ├── start.bat                # 启动脚本（可选）
